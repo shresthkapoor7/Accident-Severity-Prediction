@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.StringIndexerModel","timestamp":1765065525760,"sparkVersion":"4.0.1","uid":"StringIndexer_8adf730c5331","paramMap":{"inputCol":"Sunrise_Sunset","outputCol":"Sunrise_Index","handleInvalid":"skip"},"defaultParamMap":{"outputCol":"StringIndexer_8adf730c5331__output","stringOrderType":"frequencyDesc","handleInvalid":"error"}}

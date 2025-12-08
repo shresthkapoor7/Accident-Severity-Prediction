@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.OneHotEncoderModel","timestamp":1765065525885,"sparkVersion":"4.0.1","uid":"OneHotEncoder_414c6a145e28","paramMap":{"inputCols":["Sunrise_Index"],"outputCols":["Sunrise_Vec"]},"defaultParamMap":{"handleInvalid":"error","dropLast":true,"outputCol":"OneHotEncoder_414c6a145e28__output"}}

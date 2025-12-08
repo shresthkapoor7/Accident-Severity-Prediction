@@ -1,0 +1,62 @@
+================================================================================
+NYC COLLISION CONTRIBUTING FACTORS ANALYSIS REPORT
+================================================================================
+
+Generated: 2025-11-29 20:18:02
+
+Dataset Overview:
+  Total Collisions: 2,223,709
+  Total Contributing Factor Instances: 1,781,362
+  Unique Contributing Factors: 60
+
+Top 50 Contributing Factors (by frequency):
+   1. Driver Inattention/Distraction                      554,982 (31.15%)
+   2. Failure to Yield Right-of-Way                       151,437 ( 8.50%)
+   3. Following Too Closely                               142,932 ( 8.02%)
+   4. Other Vehicular                                     107,802 ( 6.05%)
+   5. Backing Unsafely                                     89,426 ( 5.02%)
+   6. Passing or Lane Usage Improper                       77,883 ( 4.37%)
+   7. Passing Too Closely                                  65,969 ( 3.70%)
+   8. Turning Improperly                                   63,907 ( 3.59%)
+   9. Fatigued/Drowsy                                      59,473 ( 3.34%)
+  10. Unsafe Lane Changing                                 51,127 ( 2.87%)
+  11. Traffic Control Disregarded                          49,159 ( 2.76%)
+  12. Driver Inexperience                                  43,369 ( 2.43%)
+  13. Unsafe Speed                                         40,817 ( 2.29%)
+  14. Alcohol Involvement                                  27,472 ( 1.54%)
+  15. Lost Consciousness                                   26,099 ( 1.47%)
+  16. Reaction to Uninvolved Vehicle                       25,584 ( 1.44%)
+  17. Pavement Slippery                                    25,514 ( 1.43%)
+  18. View Obstructed/Limited                              18,774 ( 1.05%)
+  19. Prescription Medication                              18,477 ( 1.04%)
+  20. Outside Car Distraction                              16,014 ( 0.90%)
+  21. Oversized Vehicle                                    15,550 ( 0.87%)
+  22. Pedestrian/Bicyclist/Other Pedestrian Error/Confusion   14,564 ( 0.82%)
+  23. Aggressive Driving/Road Rage                         13,022 ( 0.73%)
+  24. Physical Disability                                  11,647 ( 0.65%)
+  25. Passenger Distraction                                10,103 ( 0.57%)
+  26. Brakes Defective                                      7,971 ( 0.45%)
+  27. Fell Asleep                                           6,931 ( 0.39%)
+  28. Obstruction/Debris                                    5,446 ( 0.31%)
+  29. Glare                                                 4,891 ( 0.27%)
+  30. Failure to Keep Right                                 4,203 ( 0.24%)
+  31. Steering Failure                                      3,336 ( 0.19%)
+  32. Other Electronic Device                               3,025 ( 0.17%)
+  33. Tire Failure/Inadequate                               2,893 ( 0.16%)
+  34. Pavement Defective                                    2,847 ( 0.16%)
+  35. Illness                                               2,604 ( 0.15%)
+  36. Illnes                                                2,001 ( 0.11%)
+  37. Animals Action                                        1,772 ( 0.10%)
+  38. Reaction to Other Uninvolved Vehicle                  1,716 ( 0.10%)
+  39. Lane Marking Improper/Inadequate                      1,641 ( 0.09%)
+  40. Driverless/Runaway Vehicle                            1,548 ( 0.09%)
+  41. Traffic Control Device Improper/Non-Working           1,481 ( 0.08%)
+  42. Accelerator Defective                                 1,282 ( 0.07%)
+  43. Drugs (illegal)                                       1,022 ( 0.06%)
+  44. Cell Phone (hand-Held)                                  669 ( 0.04%)
+  45. Drugs (Illegal)                                         543 ( 0.03%)
+  46. Cell Phone (hands-free)                                 335 ( 0.02%)
+  47. Tow Hitch Defective                                     280 ( 0.02%)
+  48. Other Lighting Defects                                  269 ( 0.02%)
+  49. Tinted Windows                                          259 ( 0.01%)
+  50. Headlights Defective                                    223 ( 0.01%)

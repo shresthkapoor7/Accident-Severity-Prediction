@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_70847ee3b9437ad429827b92e4b30a49 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium@main/folium/templates/leaflet_heat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+    <h3 align="center" style="font-size:20px"><b>NYC Weather/Climate Heatmap</b></h3>
+    <p align="center">Red areas indicate severe weather conditions (rain, snow, fog, low visibility)</p>
+    
+    
+            <div class="folium-map" id="map_70847ee3b9437ad429827b92e4b30a49" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_70847ee3b9437ad429827b92e4b30a49 = L.map(
+                "map_70847ee3b9437ad429827b92e4b30a49",
+                {
+                    center: [40.7128, -74.006],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 11,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_e1cbd28433abe550e890cb7ae352fd49 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_e1cbd28433abe550e890cb7ae352fd49.addTo(map_70847ee3b9437ad429827b92e4b30a49);
+        
+    
+            var heat_map_b26a5227b988e1c7d2f897c3b7511891 = L.heatLayer(
+                [[40.58592, -73.97912, 4.0], [40.68754, -74.04881, 1.0], [40.64675, -74.14376, 10.0], [40.80713, -73.88612, 12.0], [40.75318, -73.78393, 3.0], [40.75848, -73.89557, 10.0], [40.79202, -73.84801, 6.0], [40.72571, -73.88462, 6.0], [40.89903, -73.90593, 6.0], [40.87132, -73.90908, 1.0], [40.78088, -73.9042, 4.0], [40.86734, -73.96056, 5.0], [40.66315, -73.81559, 4.0], [40.61245, -74.09203, 2.0], [40.66474, -74.19648, 6.0], [40.77748, -73.8717, 6.0], [40.81297, -73.87882, 4.0], [40.90472, -73.77425, 6.0], [40.65077, -73.98748, 8.0], [40.8775, -73.8084, 5.0], [40.66035, -73.96266, 6.0], [40.79059, -73.93513, 2.0], [40.75742, -73.91506, 6.0], [40.60113, -74.14409, 1.0], [40.78904, -73.74993, 1.0], [40.82454, -73.70215, 12.0], [40.64839, -74.21048, 2.0], [40.71604, -74.05508, 1.0], [40.71157, -73.91568, 12.0], [40.72558, -74.00016, 3.0], [40.68383, -74.01269, 1.0], [40.82648, -73.78146, 1.0], [40.84772, -73.89232, 3.0], [40.94412, -73.77803, 6.0], [40.77424, -73.98999, 3.0], [40.86618, -73.77701, 5.0], [40.64352, -74.03138, 6.0], [40.79055, -73.98872, 12.0], [40.90181, -73.81183, 3.0], [40.67691, -73.98392, 5.0], [40.87783, -73.76937, 3.0], [40.83088, -73.93952, 6.0], [40.74687, -73.8733, 3.0], [40.6067, -73.88674, 2.0], [40.62127, -73.99217, 10.0], [40.92567, -73.88209, 6.0], [40.61039, -74.11939, 10.0], [40.7783, -73.85852, 2.0], [40.81172, -73.85721, 6.0], [40.7257, -73.92039, 4.0], [40.7837, -73.92214, 6.0], [40.82227, -73.82519, 12.0], [40.718, -73.81372, 2.0], [40.85304, -73.99657, 4.0], [40.81634, -73.86495, 1.0], [40.56293, -74.13688, 2.0], [40.62434, -74.07647, 2.0], [40.64609, -73.71634, 10.0], [40.92082, -73.90167, 12.0], [40.80274, -73.98627, 2.0], [40.61261, -73.91699, 12.0], [40.59754, -74.0593, 12.0], [40.62715, -74.17999, 10.0], [40.85824, -73.88468, 12.0], [40.77222, -73.78712, 3.0], [40.72408, -73.78691, 4.0], [40.6145, -74.02921, 5.0], [40.73829, -73.86506, 2.0], [40.7326, -73.88939, 1.0], [40.70905, -73.87394, 4.0], [40.63786, -74.06371, 6.0], [40.50053, -74.23417, 6.0], [40.87049, -73.81965, 2.0], [40.85452, -73.94555, 8.0], [40.63988, -73.91291, 2.0], [40.54667, -74.05085, 2.0], [40.84306, -74.03075, 2.0], [40.92036, -73.90299, 10.0], [40.72389, -73.94405, 6.0], [40.62893, -73.7933, 1.0], [40.90674, -73.81571, 1.0], [40.84058, -73.92268, 5.0], [40.67232, -73.93489, 4.0], [40.72332, -73.87165, 4.0], [40.70895, -73.79988, 3.0], [40.86121, -73.91401, 8.0], [40.85825, -73.9631, 10.0], [40.74035, -73.83857, 5.0], [40.52509, -74.21054, 4.0], [40.56661, -74.17501, 4.0], [40.87813, -73.83964, 3.0], [40.59859, -74.22298, 2.0], [40.7054, -73.75844, 6.0], [40.48698, -74.11749, 6.0], [40.70711, -73.81036, 12.0], [40.60791, -74.21219, 2.0], [40.56598, -74.2341, 1.0], [40.56137, -74.22477, 4.0]],
+                {
+  "minOpacity": 0.3,
+  "maxZoom": 18,
+  "radius": 20,
+  "blur": 12,
+  "gradient": {
+  0.2: "lightblue",
+  0.4: "cyan",
+  0.6: "yellow",
+  0.8: "orange",
+  1.0: "darkred",
+},
+}
+            );
+        
+    
+            heat_map_b26a5227b988e1c7d2f897c3b7511891.addTo(map_70847ee3b9437ad429827b92e4b30a49);
+        
+    
+            var marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_74f38e6e28b467dbe2cf36aa80b6d2c0 = L.marker(
+                [40.64675, -74.14376],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_43ec275a1a73ebb85f7422dd8db81767 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e5855833b613b89cfb0e1f51b5c59939 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_228f1789fcc4baa919ae63382b6cd522 = $(`<div id="html_228f1789fcc4baa919ae63382b6cd522" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> heavy intensity rain<br>             <b>Temperature:</b> 8.6°C<br>             <b>Humidity:</b> 61%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 9.0 m/s<br>             <b>Date:</b> 2025-11-17T00:00:00.000             </div>`)[0];
+                popup_e5855833b613b89cfb0e1f51b5c59939.setContent(html_228f1789fcc4baa919ae63382b6cd522);
+            
+        
+
+        marker_74f38e6e28b467dbe2cf36aa80b6d2c0.bindPopup(popup_e5855833b613b89cfb0e1f51b5c59939)
+        ;
+
+        
+    
+    
+                marker_74f38e6e28b467dbe2cf36aa80b6d2c0.setIcon(icon_43ec275a1a73ebb85f7422dd8db81767);
+            
+    
+            var marker_571f1829c12494a89f85d05443af9161 = L.marker(
+                [40.80713, -73.88612],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_2e2d6739b585de783f848abb1901b7a5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_170dc32bbfdd2da5dc8eb77e85f7e6b7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5423ffe7228629fad08acb885617a57f = $(`<div id="html_5423ffe7228629fad08acb885617a57f" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 2.8°C<br>             <b>Humidity:</b> 58%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 6.3 m/s<br>             <b>Date:</b> 2025-12-13T00:00:00.000             </div>`)[0];
+                popup_170dc32bbfdd2da5dc8eb77e85f7e6b7.setContent(html_5423ffe7228629fad08acb885617a57f);
+            
+        
+
+        marker_571f1829c12494a89f85d05443af9161.bindPopup(popup_170dc32bbfdd2da5dc8eb77e85f7e6b7)
+        ;
+
+        
+    
+    
+                marker_571f1829c12494a89f85d05443af9161.setIcon(icon_2e2d6739b585de783f848abb1901b7a5);
+            
+    
+            var marker_98a92d2989ab117a349fd826551b0488 = L.marker(
+                [40.75848, -73.89557],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_bd98b6959ee03d9591de26203b234b6b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4ba9b227204f50414fc4a12a72da93fb = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1933b652811bbdec1f6ece06d7397144 = $(`<div id="html_1933b652811bbdec1f6ece06d7397144" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> 9.0°C<br>             <b>Humidity:</b> 53%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 1.3 m/s<br>             <b>Date:</b> 2025-12-29T00:00:00.000             </div>`)[0];
+                popup_4ba9b227204f50414fc4a12a72da93fb.setContent(html_1933b652811bbdec1f6ece06d7397144);
+            
+        
+
+        marker_98a92d2989ab117a349fd826551b0488.bindPopup(popup_4ba9b227204f50414fc4a12a72da93fb)
+        ;
+
+        
+    
+    
+                marker_98a92d2989ab117a349fd826551b0488.setIcon(icon_bd98b6959ee03d9591de26203b234b6b);
+            
+    
+            var marker_aa1fb63619f5b755e6084f2af809488d = L.marker(
+                [40.72571, -73.88462],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_105e6ae566b1f3b68d22245147b39e29 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bf1b1181df96837e1f89a55475b5cc7c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_81bbd43dc61f4854f22222d98b7dc35e = $(`<div id="html_81bbd43dc61f4854f22222d98b7dc35e" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -3.8°C<br>             <b>Humidity:</b> 53%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 5.1 m/s<br>             <b>Date:</b> 2025-12-01T00:00:00.000             </div>`)[0];
+                popup_bf1b1181df96837e1f89a55475b5cc7c.setContent(html_81bbd43dc61f4854f22222d98b7dc35e);
+            
+        
+
+        marker_aa1fb63619f5b755e6084f2af809488d.bindPopup(popup_bf1b1181df96837e1f89a55475b5cc7c)
+        ;
+
+        
+    
+    
+                marker_aa1fb63619f5b755e6084f2af809488d.setIcon(icon_105e6ae566b1f3b68d22245147b39e29);
+            
+    
+            var marker_b2b42409d5e8ef690d141c0b130be895 = L.marker(
+                [40.78088, -73.9042],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_bb3c721efc8ef41dfeb988252433b64b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_15ddbd01923a38aa417b5359fad0409f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2c246b1965cc8e61369fedfa942a2c93 = $(`<div id="html_2c246b1965cc8e61369fedfa942a2c93" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 8.4°C<br>             <b>Humidity:</b> 55%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 4.4 m/s<br>             <b>Date:</b> 2025-11-09T00:00:00.000             </div>`)[0];
+                popup_15ddbd01923a38aa417b5359fad0409f.setContent(html_2c246b1965cc8e61369fedfa942a2c93);
+            
+        
+
+        marker_b2b42409d5e8ef690d141c0b130be895.bindPopup(popup_15ddbd01923a38aa417b5359fad0409f)
+        ;
+
+        
+    
+    
+                marker_b2b42409d5e8ef690d141c0b130be895.setIcon(icon_bb3c721efc8ef41dfeb988252433b64b);
+            
+    
+            var marker_895cf83369d3dba4d8cbeca628df2bbe = L.marker(
+                [40.86734, -73.96056],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_0302b70fa8efac31f6bdfc580aa4912e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a15c352b937789bffed8ae79d8415e30 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1fb26c521d99df8313dbb6c44d666e3d = $(`<div id="html_1fb26c521d99df8313dbb6c44d666e3d" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> 8.5°C<br>             <b>Humidity:</b> 38%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 5.2 m/s<br>             <b>Date:</b> 2025-12-04T00:00:00.000             </div>`)[0];
+                popup_a15c352b937789bffed8ae79d8415e30.setContent(html_1fb26c521d99df8313dbb6c44d666e3d);
+            
+        
+
+        marker_895cf83369d3dba4d8cbeca628df2bbe.bindPopup(popup_a15c352b937789bffed8ae79d8415e30)
+        ;
+
+        
+    
+    
+                marker_895cf83369d3dba4d8cbeca628df2bbe.setIcon(icon_0302b70fa8efac31f6bdfc580aa4912e);
+            
+    
+            var marker_3fad1ca07ff81e4b2d87844e999f7119 = L.marker(
+                [40.66474, -74.19648],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_711de2db7fa8d4e107a58c853ad3198e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_439270883745cf5e1c77b19a54078381 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_91807841dc680eb9ed8f2e40f09496d1 = $(`<div id="html_91807841dc680eb9ed8f2e40f09496d1" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 5.2°C<br>             <b>Humidity:</b> 84%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 8.8 m/s<br>             <b>Date:</b> 2025-11-19T00:00:00.000             </div>`)[0];
+                popup_439270883745cf5e1c77b19a54078381.setContent(html_91807841dc680eb9ed8f2e40f09496d1);
+            
+        
+
+        marker_3fad1ca07ff81e4b2d87844e999f7119.bindPopup(popup_439270883745cf5e1c77b19a54078381)
+        ;
+
+        
+    
+    
+                marker_3fad1ca07ff81e4b2d87844e999f7119.setIcon(icon_711de2db7fa8d4e107a58c853ad3198e);
+            
+    
+            var marker_6ca4f36f1c39dcfc7aca9b256ad52d3e = L.marker(
+                [40.65077, -73.98748],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_9bc1e546c727c753a4bdd3f34ae1b60c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_118cc4ecc20b15bd903ccc9df289f245 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d424d8188fa2d7482a1dfc2dcaddc48b = $(`<div id="html_d424d8188fa2d7482a1dfc2dcaddc48b" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 6.8°C<br>             <b>Humidity:</b> 80%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 6.9 m/s<br>             <b>Date:</b> 2025-11-15T00:00:00.000             </div>`)[0];
+                popup_118cc4ecc20b15bd903ccc9df289f245.setContent(html_d424d8188fa2d7482a1dfc2dcaddc48b);
+            
+        
+
+        marker_6ca4f36f1c39dcfc7aca9b256ad52d3e.bindPopup(popup_118cc4ecc20b15bd903ccc9df289f245)
+        ;
+
+        
+    
+    
+                marker_6ca4f36f1c39dcfc7aca9b256ad52d3e.setIcon(icon_9bc1e546c727c753a4bdd3f34ae1b60c);
+            
+    
+            var marker_71f784118492ed4b10c65742986589a7 = L.marker(
+                [40.8775, -73.8084],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_e281dd25a9e5dc4a263283afca667b93 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1dbf55b976d63df5302ec4871bb8d491 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_4f56b06159766d0b7dee8c4d82a488d6 = $(`<div id="html_4f56b06159766d0b7dee8c4d82a488d6" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> heavy intensity rain<br>             <b>Temperature:</b> 4.9°C<br>             <b>Humidity:</b> 41%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 8.7 m/s<br>             <b>Date:</b> 2025-11-29T00:00:00.000             </div>`)[0];
+                popup_1dbf55b976d63df5302ec4871bb8d491.setContent(html_4f56b06159766d0b7dee8c4d82a488d6);
+            
+        
+
+        marker_71f784118492ed4b10c65742986589a7.bindPopup(popup_1dbf55b976d63df5302ec4871bb8d491)
+        ;
+
+        
+    
+    
+                marker_71f784118492ed4b10c65742986589a7.setIcon(icon_e281dd25a9e5dc4a263283afca667b93);
+            
+    
+            var marker_aca661763a82d73426cea37d46a68fdd = L.marker(
+                [40.75742, -73.91506],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_019b678e6c9a4824431c46a28cdd73c5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d388c928ab1cdab7647fe76e57c3c9ee = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_20eb03927509940acd0e9eaaae2a7190 = $(`<div id="html_20eb03927509940acd0e9eaaae2a7190" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -3.0°C<br>             <b>Humidity:</b> 52%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 6.4 m/s<br>             <b>Date:</b> 2025-12-02T00:00:00.000             </div>`)[0];
+                popup_d388c928ab1cdab7647fe76e57c3c9ee.setContent(html_20eb03927509940acd0e9eaaae2a7190);
+            
+        
+
+        marker_aca661763a82d73426cea37d46a68fdd.bindPopup(popup_d388c928ab1cdab7647fe76e57c3c9ee)
+        ;
+
+        
+    
+    
+                marker_aca661763a82d73426cea37d46a68fdd.setIcon(icon_019b678e6c9a4824431c46a28cdd73c5);
+            
+    
+            var marker_50ad2cad8ae30224fbb7f9bebeb075fd = L.marker(
+                [40.82454, -73.70215],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_4bb29c82844b2dd972fe0e45caf45e52 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_17ca1bcf970ea39427c934ab29af5350 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_28830d0eac22719e6e155ed96630870a = $(`<div id="html_28830d0eac22719e6e155ed96630870a" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> 1.3°C<br>             <b>Humidity:</b> 34%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 5.0 m/s<br>             <b>Date:</b> 2025-11-04T00:00:00.000             </div>`)[0];
+                popup_17ca1bcf970ea39427c934ab29af5350.setContent(html_28830d0eac22719e6e155ed96630870a);
+            
+        
+
+        marker_50ad2cad8ae30224fbb7f9bebeb075fd.bindPopup(popup_17ca1bcf970ea39427c934ab29af5350)
+        ;
+
+        
+    
+    
+                marker_50ad2cad8ae30224fbb7f9bebeb075fd.setIcon(icon_4bb29c82844b2dd972fe0e45caf45e52);
+            
+    
+            var marker_a9a4baa7cd1e31ce448fe9c4bd5d8b39 = L.marker(
+                [40.71157, -73.91568],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_b76c2b8d802554119e0e714c35181cbd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_85784721951fcc7f89c6fd88c58cd41b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9c83ab78ddff8a1ef5a27410db0ea603 = $(`<div id="html_9c83ab78ddff8a1ef5a27410db0ea603" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> 7.6°C<br>             <b>Humidity:</b> 35%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 3.4 m/s<br>             <b>Date:</b> 2025-11-25T00:00:00.000             </div>`)[0];
+                popup_85784721951fcc7f89c6fd88c58cd41b.setContent(html_9c83ab78ddff8a1ef5a27410db0ea603);
+            
+        
+
+        marker_a9a4baa7cd1e31ce448fe9c4bd5d8b39.bindPopup(popup_85784721951fcc7f89c6fd88c58cd41b)
+        ;
+
+        
+    
+    
+                marker_a9a4baa7cd1e31ce448fe9c4bd5d8b39.setIcon(icon_b76c2b8d802554119e0e714c35181cbd);
+            
+    
+            var marker_08dc59012a1ea51a3995a8cc8b22fa96 = L.marker(
+                [40.94412, -73.77803],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_d0ec521e41559e9af2c5969667476c46 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_888f5e74bbc54239112b2e2d4223c6e4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cb4e7277a64f8191b1de14eaa8250581 = $(`<div id="html_cb4e7277a64f8191b1de14eaa8250581" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -5.0°C<br>             <b>Humidity:</b> 72%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 2.6 m/s<br>             <b>Date:</b> 2025-11-30T00:00:00.000             </div>`)[0];
+                popup_888f5e74bbc54239112b2e2d4223c6e4.setContent(html_cb4e7277a64f8191b1de14eaa8250581);
+            
+        
+
+        marker_08dc59012a1ea51a3995a8cc8b22fa96.bindPopup(popup_888f5e74bbc54239112b2e2d4223c6e4)
+        ;
+
+        
+    
+    
+                marker_08dc59012a1ea51a3995a8cc8b22fa96.setIcon(icon_d0ec521e41559e9af2c5969667476c46);
+            
+    
+            var marker_f89a0e5c564195116de021f53453b2a7 = L.marker(
+                [40.86618, -73.77701],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_d5f588ea2c09e14631707181a3363081 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_886e8497c3b3e8cfd37a4bc7379cdd08 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c76728a3c9ec9249b462cf302aed1967 = $(`<div id="html_c76728a3c9ec9249b462cf302aed1967" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> moderate rain<br>             <b>Temperature:</b> 9.7°C<br>             <b>Humidity:</b> 32%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 4.9 m/s<br>             <b>Date:</b> 2025-11-18T00:00:00.000             </div>`)[0];
+                popup_886e8497c3b3e8cfd37a4bc7379cdd08.setContent(html_c76728a3c9ec9249b462cf302aed1967);
+            
+        
+
+        marker_f89a0e5c564195116de021f53453b2a7.bindPopup(popup_886e8497c3b3e8cfd37a4bc7379cdd08)
+        ;
+
+        
+    
+    
+                marker_f89a0e5c564195116de021f53453b2a7.setIcon(icon_d5f588ea2c09e14631707181a3363081);
+            
+    
+            var marker_a62800f142fbedcba7f16a16012e02fa = L.marker(
+                [40.79055, -73.98872],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_98bfb21a8d94e578bd9be1d50f56520d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1492ec609bdfd26b4bc68a0b12063612 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_689256f4706eac90aba0c863dcb4ab7f = $(`<div id="html_689256f4706eac90aba0c863dcb4ab7f" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -2.0°C<br>             <b>Humidity:</b> 48%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 1.1 m/s<br>             <b>Date:</b> 2025-11-07T00:00:00.000             </div>`)[0];
+                popup_1492ec609bdfd26b4bc68a0b12063612.setContent(html_689256f4706eac90aba0c863dcb4ab7f);
+            
+        
+
+        marker_a62800f142fbedcba7f16a16012e02fa.bindPopup(popup_1492ec609bdfd26b4bc68a0b12063612)
+        ;
+
+        
+    
+    
+                marker_a62800f142fbedcba7f16a16012e02fa.setIcon(icon_98bfb21a8d94e578bd9be1d50f56520d);
+            
+    
+            var marker_c4e5678ddd7955b99071c27cbb46fc2c = L.marker(
+                [40.67691, -73.98392],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_b0a7f33df8559109d4e43f3dfde701c3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9de1fb319d938a295c105d078f6c1a75 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cef0053f8c4981aa49e0ef78bd2c4dbb = $(`<div id="html_cef0053f8c4981aa49e0ef78bd2c4dbb" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> moderate rain<br>             <b>Temperature:</b> 7.7°C<br>             <b>Humidity:</b> 67%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 1.6 m/s<br>             <b>Date:</b> 2025-12-03T00:00:00.000             </div>`)[0];
+                popup_9de1fb319d938a295c105d078f6c1a75.setContent(html_cef0053f8c4981aa49e0ef78bd2c4dbb);
+            
+        
+
+        marker_c4e5678ddd7955b99071c27cbb46fc2c.bindPopup(popup_9de1fb319d938a295c105d078f6c1a75)
+        ;
+
+        
+    
+    
+                marker_c4e5678ddd7955b99071c27cbb46fc2c.setIcon(icon_b0a7f33df8559109d4e43f3dfde701c3);
+            
+    
+            var marker_f35625a8f5f272f127de00460906f82a = L.marker(
+                [40.62127, -73.99217],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_6d82dc9f7bfa541b104abbb0b51524a2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1a0a1784090aee0c473585015bd0b291 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_adfb919caf3ea49f5b6ed437d0ed80ba = $(`<div id="html_adfb919caf3ea49f5b6ed437d0ed80ba" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> -3.8°C<br>             <b>Humidity:</b> 45%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 1.9 m/s<br>             <b>Date:</b> 2025-12-08T00:00:00.000             </div>`)[0];
+                popup_1a0a1784090aee0c473585015bd0b291.setContent(html_adfb919caf3ea49f5b6ed437d0ed80ba);
+            
+        
+
+        marker_f35625a8f5f272f127de00460906f82a.bindPopup(popup_1a0a1784090aee0c473585015bd0b291)
+        ;
+
+        
+    
+    
+                marker_f35625a8f5f272f127de00460906f82a.setIcon(icon_6d82dc9f7bfa541b104abbb0b51524a2);
+            
+    
+            var marker_c4b001e60e67ff0759d40af652e5bd4b = L.marker(
+                [40.92567, -73.88209],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_62009c62e0bc551c0c690291701b6ffa = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ff3577cd62da6ee16e91f44e527da612 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_12ca66db3ae9ce083936b0f80b946fed = $(`<div id="html_12ca66db3ae9ce083936b0f80b946fed" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> 9.4°C<br>             <b>Humidity:</b> 40%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 2.9 m/s<br>             <b>Date:</b> 2025-12-20T00:00:00.000             </div>`)[0];
+                popup_ff3577cd62da6ee16e91f44e527da612.setContent(html_12ca66db3ae9ce083936b0f80b946fed);
+            
+        
+
+        marker_c4b001e60e67ff0759d40af652e5bd4b.bindPopup(popup_ff3577cd62da6ee16e91f44e527da612)
+        ;
+
+        
+    
+    
+                marker_c4b001e60e67ff0759d40af652e5bd4b.setIcon(icon_62009c62e0bc551c0c690291701b6ffa);
+            
+    
+            var marker_48d9e3b2d120583d0c900907f5793a19 = L.marker(
+                [40.61039, -74.11939],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_c3d6d175fe93ac305d4b2468d51fcd9f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_54df7fcc350efc8b059c4701540823e4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_386c95c9170801be84deefd748ca7bca = $(`<div id="html_386c95c9170801be84deefd748ca7bca" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> moderate rain<br>             <b>Temperature:</b> -2.0°C<br>             <b>Humidity:</b> 83%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 5.4 m/s<br>             <b>Date:</b> 2025-11-16T00:00:00.000             </div>`)[0];
+                popup_54df7fcc350efc8b059c4701540823e4.setContent(html_386c95c9170801be84deefd748ca7bca);
+            
+        
+
+        marker_48d9e3b2d120583d0c900907f5793a19.bindPopup(popup_54df7fcc350efc8b059c4701540823e4)
+        ;
+
+        
+    
+    
+                marker_48d9e3b2d120583d0c900907f5793a19.setIcon(icon_c3d6d175fe93ac305d4b2468d51fcd9f);
+            
+    
+            var marker_ebad73d9b1f6efa610dd7d0805d2d185 = L.marker(
+                [40.82227, -73.82519],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_1fe44857bfbde037489b67ef29476920 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_06c1194e4541985b10bbc8f1dbaf2221 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8546d6e00a78a4af949921f063782058 = $(`<div id="html_8546d6e00a78a4af949921f063782058" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 1.2°C<br>             <b>Humidity:</b> 57%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 10.0 m/s<br>             <b>Date:</b> 2025-12-05T00:00:00.000             </div>`)[0];
+                popup_06c1194e4541985b10bbc8f1dbaf2221.setContent(html_8546d6e00a78a4af949921f063782058);
+            
+        
+
+        marker_ebad73d9b1f6efa610dd7d0805d2d185.bindPopup(popup_06c1194e4541985b10bbc8f1dbaf2221)
+        ;
+
+        
+    
+    
+                marker_ebad73d9b1f6efa610dd7d0805d2d185.setIcon(icon_1fe44857bfbde037489b67ef29476920);
+            
+    
+            var marker_ddb4c114ae4ddb24f805fc6832d85263 = L.marker(
+                [40.85304, -73.99657],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_52a938c7e1e396a025005fe1689fe0c6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ef32c7f55e64a7e2a744aff5d1ea9059 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8739500bfbaf4051defa4a40094f5edb = $(`<div id="html_8739500bfbaf4051defa4a40094f5edb" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 2.8°C<br>             <b>Humidity:</b> 87%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 2.4 m/s<br>             <b>Date:</b> 2025-11-16T00:00:00.000             </div>`)[0];
+                popup_ef32c7f55e64a7e2a744aff5d1ea9059.setContent(html_8739500bfbaf4051defa4a40094f5edb);
+            
+        
+
+        marker_ddb4c114ae4ddb24f805fc6832d85263.bindPopup(popup_ef32c7f55e64a7e2a744aff5d1ea9059)
+        ;
+
+        
+    
+    
+                marker_ddb4c114ae4ddb24f805fc6832d85263.setIcon(icon_52a938c7e1e396a025005fe1689fe0c6);
+            
+    
+            var marker_d34f7520aaca0dbb858d4f3b80ab8146 = L.marker(
+                [40.64609, -73.71634],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_7f7cc562103ce5c259c6c7ffa4a4de28 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ca5217a0bac7c78546b0dc05fd1444c6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_91c98f5d0a50f0709f99b069b79f75b6 = $(`<div id="html_91c98f5d0a50f0709f99b069b79f75b6" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> moderate rain<br>             <b>Temperature:</b> 4.0°C<br>             <b>Humidity:</b> 49%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 9.2 m/s<br>             <b>Date:</b> 2025-12-05T00:00:00.000             </div>`)[0];
+                popup_ca5217a0bac7c78546b0dc05fd1444c6.setContent(html_91c98f5d0a50f0709f99b069b79f75b6);
+            
+        
+
+        marker_d34f7520aaca0dbb858d4f3b80ab8146.bindPopup(popup_ca5217a0bac7c78546b0dc05fd1444c6)
+        ;
+
+        
+    
+    
+                marker_d34f7520aaca0dbb858d4f3b80ab8146.setIcon(icon_7f7cc562103ce5c259c6c7ffa4a4de28);
+            
+    
+            var marker_14f309369c2d207ac7dec3f2fda4b9f1 = L.marker(
+                [40.92082, -73.90167],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_a0dc13f37400aa8d660b88cc9ba5707e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4beaabccab1404d9627cfdedb9ef5542 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_77e2a5afcacd866a54fe031f1fc016d6 = $(`<div id="html_77e2a5afcacd866a54fe031f1fc016d6" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 4.5°C<br>             <b>Humidity:</b> 65%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 4.1 m/s<br>             <b>Date:</b> 2025-11-19T00:00:00.000             </div>`)[0];
+                popup_4beaabccab1404d9627cfdedb9ef5542.setContent(html_77e2a5afcacd866a54fe031f1fc016d6);
+            
+        
+
+        marker_14f309369c2d207ac7dec3f2fda4b9f1.bindPopup(popup_4beaabccab1404d9627cfdedb9ef5542)
+        ;
+
+        
+    
+    
+                marker_14f309369c2d207ac7dec3f2fda4b9f1.setIcon(icon_a0dc13f37400aa8d660b88cc9ba5707e);
+            
+    
+            var marker_ea9c2ce95340f7c71bfcda6e486fa5aa = L.marker(
+                [40.61261, -73.91699],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_ac72f91725f9d2167e9395f75f3f0d27 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_74134e4bfb2572563ab9c8699dfe7d6b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6fba441845710b16110e4ddf6f9fe451 = $(`<div id="html_6fba441845710b16110e4ddf6f9fe451" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -0.1°C<br>             <b>Humidity:</b> 40%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 6.1 m/s<br>             <b>Date:</b> 2025-11-08T00:00:00.000             </div>`)[0];
+                popup_74134e4bfb2572563ab9c8699dfe7d6b.setContent(html_6fba441845710b16110e4ddf6f9fe451);
+            
+        
+
+        marker_ea9c2ce95340f7c71bfcda6e486fa5aa.bindPopup(popup_74134e4bfb2572563ab9c8699dfe7d6b)
+        ;
+
+        
+    
+    
+                marker_ea9c2ce95340f7c71bfcda6e486fa5aa.setIcon(icon_ac72f91725f9d2167e9395f75f3f0d27);
+            
+    
+            var marker_16dcc54e5fc519c7eabc01ce55dd4a97 = L.marker(
+                [40.59754, -74.0593],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_1c68800ddb3e5fa782785f8f7cc336c9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7e252682214c2ae8d4610d2fd748204c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_62d06ee908a80283868f1c4bd6c49076 = $(`<div id="html_62d06ee908a80283868f1c4bd6c49076" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 2.2°C<br>             <b>Humidity:</b> 81%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 3.2 m/s<br>             <b>Date:</b> 2025-11-12T00:00:00.000             </div>`)[0];
+                popup_7e252682214c2ae8d4610d2fd748204c.setContent(html_62d06ee908a80283868f1c4bd6c49076);
+            
+        
+
+        marker_16dcc54e5fc519c7eabc01ce55dd4a97.bindPopup(popup_7e252682214c2ae8d4610d2fd748204c)
+        ;
+
+        
+    
+    
+                marker_16dcc54e5fc519c7eabc01ce55dd4a97.setIcon(icon_1c68800ddb3e5fa782785f8f7cc336c9);
+            
+    
+            var marker_1323f374bfca6f22d2c54822738b65ca = L.marker(
+                [40.62715, -74.17999],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_383b3d8f5cf3ec08cbe7734f4e5cf779 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f68efb03df67a73e1c863883807b9f7e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7c4a252090e5764af79d578be71d3c79 = $(`<div id="html_7c4a252090e5764af79d578be71d3c79" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> 9.1°C<br>             <b>Humidity:</b> 84%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 6.2 m/s<br>             <b>Date:</b> 2025-12-28T00:00:00.000             </div>`)[0];
+                popup_f68efb03df67a73e1c863883807b9f7e.setContent(html_7c4a252090e5764af79d578be71d3c79);
+            
+        
+
+        marker_1323f374bfca6f22d2c54822738b65ca.bindPopup(popup_f68efb03df67a73e1c863883807b9f7e)
+        ;
+
+        
+    
+    
+                marker_1323f374bfca6f22d2c54822738b65ca.setIcon(icon_383b3d8f5cf3ec08cbe7734f4e5cf779);
+            
+    
+            var marker_dfa38f1d4757f3029a7cec62b64c7adf = L.marker(
+                [40.85824, -73.88468],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_c2dbe606b5034455b435398fcab18f2b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_85f743e09494ff606c8b0660e5fceffe = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_165fefc1d125127ec7979dd590819a7d = $(`<div id="html_165fefc1d125127ec7979dd590819a7d" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> -0.1°C<br>             <b>Humidity:</b> 86%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 8.3 m/s<br>             <b>Date:</b> 2025-11-30T00:00:00.000             </div>`)[0];
+                popup_85f743e09494ff606c8b0660e5fceffe.setContent(html_165fefc1d125127ec7979dd590819a7d);
+            
+        
+
+        marker_dfa38f1d4757f3029a7cec62b64c7adf.bindPopup(popup_85f743e09494ff606c8b0660e5fceffe)
+        ;
+
+        
+    
+    
+                marker_dfa38f1d4757f3029a7cec62b64c7adf.setIcon(icon_c2dbe606b5034455b435398fcab18f2b);
+            
+    
+            var marker_24f2c5414ba6ffafa914d61f3b7ce46b = L.marker(
+                [40.6145, -74.02921],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_f5423b6711987c10ce1efa578acbe487 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0a7214946840d94d3c7b43ca12a4d77e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_35db6d2b67f3ce06380026d84769fec5 = $(`<div id="html_35db6d2b67f3ce06380026d84769fec5" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> -4.8°C<br>             <b>Humidity:</b> 70%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 8.7 m/s<br>             <b>Date:</b> 2025-11-23T00:00:00.000             </div>`)[0];
+                popup_0a7214946840d94d3c7b43ca12a4d77e.setContent(html_35db6d2b67f3ce06380026d84769fec5);
+            
+        
+
+        marker_24f2c5414ba6ffafa914d61f3b7ce46b.bindPopup(popup_0a7214946840d94d3c7b43ca12a4d77e)
+        ;
+
+        
+    
+    
+                marker_24f2c5414ba6ffafa914d61f3b7ce46b.setIcon(icon_f5423b6711987c10ce1efa578acbe487);
+            
+    
+            var marker_f89488ba7989be425d860695a20b5c84 = L.marker(
+                [40.85452, -73.94555],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_c1f31a61193ac9f395acbbba5be77a6d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cad8d00b8401fc46c34a247380764054 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b3c7f48742eae1224715024f3a58793b = $(`<div id="html_b3c7f48742eae1224715024f3a58793b" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 1.7°C<br>             <b>Humidity:</b> 61%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 1.8 m/s<br>             <b>Date:</b> 2025-12-25T00:00:00.000             </div>`)[0];
+                popup_cad8d00b8401fc46c34a247380764054.setContent(html_b3c7f48742eae1224715024f3a58793b);
+            
+        
+
+        marker_f89488ba7989be425d860695a20b5c84.bindPopup(popup_cad8d00b8401fc46c34a247380764054)
+        ;
+
+        
+    
+    
+                marker_f89488ba7989be425d860695a20b5c84.setIcon(icon_c1f31a61193ac9f395acbbba5be77a6d);
+            
+    
+            var marker_82dee0234d09c5ae8dd728d6fa3f1ad8 = L.marker(
+                [40.92036, -73.90299],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_d9103d803adb11ef03a757e039affb39 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a1bf4ff33c0036e453feda605c6b1bda = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e44c8cb78a12607cd7995d84104ec6e7 = $(`<div id="html_e44c8cb78a12607cd7995d84104ec6e7" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> moderate rain<br>             <b>Temperature:</b> 4.0°C<br>             <b>Humidity:</b> 62%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 4.2 m/s<br>             <b>Date:</b> 2025-11-10T00:00:00.000             </div>`)[0];
+                popup_a1bf4ff33c0036e453feda605c6b1bda.setContent(html_e44c8cb78a12607cd7995d84104ec6e7);
+            
+        
+
+        marker_82dee0234d09c5ae8dd728d6fa3f1ad8.bindPopup(popup_a1bf4ff33c0036e453feda605c6b1bda)
+        ;
+
+        
+    
+    
+                marker_82dee0234d09c5ae8dd728d6fa3f1ad8.setIcon(icon_d9103d803adb11ef03a757e039affb39);
+            
+    
+            var marker_ba74b80eabb1adf8f1f75bd8b4669718 = L.marker(
+                [40.72389, -73.94405],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_803c9db7bd2dbc6efb7228a757dd707b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3802923e03206875f1e7b4e94d65c94a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d52bd0222750fe8293ce000ec8e4fe8b = $(`<div id="html_d52bd0222750fe8293ce000ec8e4fe8b" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 6.5°C<br>             <b>Humidity:</b> 75%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 6.1 m/s<br>             <b>Date:</b> 2025-12-06T00:00:00.000             </div>`)[0];
+                popup_3802923e03206875f1e7b4e94d65c94a.setContent(html_d52bd0222750fe8293ce000ec8e4fe8b);
+            
+        
+
+        marker_ba74b80eabb1adf8f1f75bd8b4669718.bindPopup(popup_3802923e03206875f1e7b4e94d65c94a)
+        ;
+
+        
+    
+    
+                marker_ba74b80eabb1adf8f1f75bd8b4669718.setIcon(icon_803c9db7bd2dbc6efb7228a757dd707b);
+            
+    
+            var marker_2beacc121f814856ef788b99ae169bbc = L.marker(
+                [40.84058, -73.92268],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_ec274f6b37456ad3904e739132d9ed0f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3376dad94131447fff5ed2ad4ef72e40 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_fa9dbe78841047f4160203c1c418b4df = $(`<div id="html_fa9dbe78841047f4160203c1c418b4df" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> light rain<br>             <b>Temperature:</b> 9.1°C<br>             <b>Humidity:</b> 91%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 1.2 m/s<br>             <b>Date:</b> 2025-11-17T00:00:00.000             </div>`)[0];
+                popup_3376dad94131447fff5ed2ad4ef72e40.setContent(html_fa9dbe78841047f4160203c1c418b4df);
+            
+        
+
+        marker_2beacc121f814856ef788b99ae169bbc.bindPopup(popup_3376dad94131447fff5ed2ad4ef72e40)
+        ;
+
+        
+    
+    
+                marker_2beacc121f814856ef788b99ae169bbc.setIcon(icon_ec274f6b37456ad3904e739132d9ed0f);
+            
+    
+            var marker_d21d1f8f73a2143e4ccba24a77bd65e5 = L.marker(
+                [40.67232, -73.93489],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_0162ea3762aa1db59eecdaf32ce97228 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4cbf8ac562049653791bc03cc4db81db = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_55b8056ce59167d87dd98a392a74fc81 = $(`<div id="html_55b8056ce59167d87dd98a392a74fc81" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 6.7°C<br>             <b>Humidity:</b> 88%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 6.3 m/s<br>             <b>Date:</b> 2025-12-11T00:00:00.000             </div>`)[0];
+                popup_4cbf8ac562049653791bc03cc4db81db.setContent(html_55b8056ce59167d87dd98a392a74fc81);
+            
+        
+
+        marker_d21d1f8f73a2143e4ccba24a77bd65e5.bindPopup(popup_4cbf8ac562049653791bc03cc4db81db)
+        ;
+
+        
+    
+    
+                marker_d21d1f8f73a2143e4ccba24a77bd65e5.setIcon(icon_0162ea3762aa1db59eecdaf32ce97228);
+            
+    
+            var marker_f19c439f46e440b51ee82d73afb555d8 = L.marker(
+                [40.86121, -73.91401],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_dd91fd38264ae49dc16bb20d48399ba4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_510fce66737ab753e523c2b9141b712e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_11eb397e1c6dd7a648552f16b4436266 = $(`<div id="html_11eb397e1c6dd7a648552f16b4436266" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> 5.3°C<br>             <b>Humidity:</b> 37%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 3.2 m/s<br>             <b>Date:</b> 2025-11-13T00:00:00.000             </div>`)[0];
+                popup_510fce66737ab753e523c2b9141b712e.setContent(html_11eb397e1c6dd7a648552f16b4436266);
+            
+        
+
+        marker_f19c439f46e440b51ee82d73afb555d8.bindPopup(popup_510fce66737ab753e523c2b9141b712e)
+        ;
+
+        
+    
+    
+                marker_f19c439f46e440b51ee82d73afb555d8.setIcon(icon_dd91fd38264ae49dc16bb20d48399ba4);
+            
+    
+            var marker_7cf2f621b4e6adcbf17cf2fb5a0d4879 = L.marker(
+                [40.85825, -73.9631],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_1e89894ddca5a7ed9c287ebd85da0da4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_da0dc4d1160733fca8d064f906907d93 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5f5d016da190976035c0b75ac4342f06 = $(`<div id="html_5f5d016da190976035c0b75ac4342f06" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> heavy intensity rain<br>             <b>Temperature:</b> 9.2°C<br>             <b>Humidity:</b> 58%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 9.0 m/s<br>             <b>Date:</b> 2025-11-11T00:00:00.000             </div>`)[0];
+                popup_da0dc4d1160733fca8d064f906907d93.setContent(html_5f5d016da190976035c0b75ac4342f06);
+            
+        
+
+        marker_7cf2f621b4e6adcbf17cf2fb5a0d4879.bindPopup(popup_da0dc4d1160733fca8d064f906907d93)
+        ;
+
+        
+    
+    
+                marker_7cf2f621b4e6adcbf17cf2fb5a0d4879.setIcon(icon_1e89894ddca5a7ed9c287ebd85da0da4);
+            
+    
+            var marker_29a4736c12667143621338dff37cd24a = L.marker(
+                [40.74035, -73.83857],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_ee2e23a26bf1b503e32553ad18dbced3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "tint",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9c5ff5aeb38384e69cf86b7f6e1206bc = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d31c26733313197a99f796d4b32dab60 = $(`<div id="html_d31c26733313197a99f796d4b32dab60" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Rain<br>             <b>Description:</b> heavy intensity rain<br>             <b>Temperature:</b> 8.6°C<br>             <b>Humidity:</b> 49%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 7.1 m/s<br>             <b>Date:</b> 2025-11-22T00:00:00.000             </div>`)[0];
+                popup_9c5ff5aeb38384e69cf86b7f6e1206bc.setContent(html_d31c26733313197a99f796d4b32dab60);
+            
+        
+
+        marker_29a4736c12667143621338dff37cd24a.bindPopup(popup_9c5ff5aeb38384e69cf86b7f6e1206bc)
+        ;
+
+        
+    
+    
+                marker_29a4736c12667143621338dff37cd24a.setIcon(icon_ee2e23a26bf1b503e32553ad18dbced3);
+            
+    
+            var marker_1705e8dc47e0e80461f535b3cfd43f37 = L.marker(
+                [40.52509, -74.21054],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_ff60624aedb2d6e04b7305e0b4b92ffc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "cloud",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bdbbedc28c731eac63fbe39aca6cbcb5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_aeb77e1a0112ac3c186e8e19cbf44b71 = $(`<div id="html_aeb77e1a0112ac3c186e8e19cbf44b71" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Fog<br>             <b>Description:</b> fog<br>             <b>Temperature:</b> -0.0°C<br>             <b>Humidity:</b> 34%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 4.8 m/s<br>             <b>Date:</b> 2025-11-13T00:00:00.000             </div>`)[0];
+                popup_bdbbedc28c731eac63fbe39aca6cbcb5.setContent(html_aeb77e1a0112ac3c186e8e19cbf44b71);
+            
+        
+
+        marker_1705e8dc47e0e80461f535b3cfd43f37.bindPopup(popup_bdbbedc28c731eac63fbe39aca6cbcb5)
+        ;
+
+        
+    
+    
+                marker_1705e8dc47e0e80461f535b3cfd43f37.setIcon(icon_ff60624aedb2d6e04b7305e0b4b92ffc);
+            
+    
+            var marker_8c58ad207f5aff107f4fdea71588c562 = L.marker(
+                [40.7054, -73.75844],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_69163ec81fceb04ab6925c83a67297ba = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_76fc67c32bf78a37d307f17b9e871b14 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2b13867985b3cba9e28a3d2d43915e9e = $(`<div id="html_2b13867985b3cba9e28a3d2d43915e9e" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> 9.9°C<br>             <b>Humidity:</b> 72%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 7.9 m/s<br>             <b>Date:</b> 2025-11-23T00:00:00.000             </div>`)[0];
+                popup_76fc67c32bf78a37d307f17b9e871b14.setContent(html_2b13867985b3cba9e28a3d2d43915e9e);
+            
+        
+
+        marker_8c58ad207f5aff107f4fdea71588c562.bindPopup(popup_76fc67c32bf78a37d307f17b9e871b14)
+        ;
+
+        
+    
+    
+                marker_8c58ad207f5aff107f4fdea71588c562.setIcon(icon_69163ec81fceb04ab6925c83a67297ba);
+            
+    
+            var marker_10983c5fa1b305038067b2ee5ee163f8 = L.marker(
+                [40.48698, -74.11749],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_cb8b3d1c1fdc3f9692a473de63d44f3f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1328fa199579055bbb87f1ee3a456446 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a8bfd695e5a82748a95fb12fa8bf8f31 = $(`<div id="html_a8bfd695e5a82748a95fb12fa8bf8f31" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> light snow<br>             <b>Temperature:</b> 2.2°C<br>             <b>Humidity:</b> 31%<br>             <b>Visibility:</b> 10000m<br>             <b>Wind Speed:</b> 4.8 m/s<br>             <b>Date:</b> 2025-12-10T00:00:00.000             </div>`)[0];
+                popup_1328fa199579055bbb87f1ee3a456446.setContent(html_a8bfd695e5a82748a95fb12fa8bf8f31);
+            
+        
+
+        marker_10983c5fa1b305038067b2ee5ee163f8.bindPopup(popup_1328fa199579055bbb87f1ee3a456446)
+        ;
+
+        
+    
+    
+                marker_10983c5fa1b305038067b2ee5ee163f8.setIcon(icon_cb8b3d1c1fdc3f9692a473de63d44f3f);
+            
+    
+            var marker_1089674f40c0ef834896d30481a51955 = L.marker(
+                [40.70711, -73.81036],
+                {
+}
+            ).addTo(marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b);
+        
+    
+            var icon_4f326b66be0f12d0be026e88d5546078 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "snowflake-o",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_11d5928d9d2ae96afec4ebc957528de2 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_07c8c6ce275f921c9560767d622c59f6 = $(`<div id="html_07c8c6ce275f921c9560767d622c59f6" style="width: 100.0%; height: 100.0%;">             <b>Weather:</b> Snow<br>             <b>Description:</b> moderate snow<br>             <b>Temperature:</b> 6.7°C<br>             <b>Humidity:</b> 54%<br>             <b>Visibility:</b> 5000m<br>             <b>Wind Speed:</b> 6.3 m/s<br>             <b>Date:</b> 2025-12-15T00:00:00.000             </div>`)[0];
+                popup_11d5928d9d2ae96afec4ebc957528de2.setContent(html_07c8c6ce275f921c9560767d622c59f6);
+            
+        
+
+        marker_1089674f40c0ef834896d30481a51955.bindPopup(popup_11d5928d9d2ae96afec4ebc957528de2)
+        ;
+
+        
+    
+    
+                marker_1089674f40c0ef834896d30481a51955.setIcon(icon_4f326b66be0f12d0be026e88d5546078);
+            
+    
+            marker_cluster_d6e00b0028f4ebccb5bef9dc56c0b83b.addTo(map_70847ee3b9437ad429827b92e4b30a49);
+        
+</script>
+</html>

@@ -1,0 +1,23 @@
+{
+  "topic": "nyc_permitted_event",
+  "value": "{\"event_id\": \"871486\", \"event_name\": \"Cherry Lawn Closure\", \"start_date_time\": \"2025-12-10T00:00:00.000\", \"end_date_time\": \"2025-12-10T02:00:00.000\", \"event_agency\": \"Parks Department\", \"event_type\": \"Special Event\", \"event_borough\": \"Manhattan\", \"event_location\": \"Madison Square Park: Cherry Lawn\", \"street_closure_type\": \"N/A\", \"community_board\": \"5,\", \"police_precinct\": \"13,\"}",
+  "timestamp": 1764457572529,
+  "partition": 0,
+  "offset": 0
+}
+{
+  "topic": "nyc_permitted_event",
+  "value": "{\"event_id\": \"889692\", \"event_name\": \"Lawn closure - Heckscher Lawn Playground and Picnic Lawns\", \"start_date_time\": \"2025-12-03T00:00:00.000\", \"end_date_time\": \"2025-12-03T23:59:00.000\", \"event_agency\": \"Parks Department\", \"event_type\": \"Special Event\", \"event_borough\": \"Manhattan\", \"event_location\": \"Central Park: Heckscher Picnic Area   ,Central Park: Heckscher Playground Lawns\", \"street_closure_type\": \"N/A\", \"community_board\": \"64,\", \"police_precinct\": \"22,\"}",
+  "timestamp": 1764457572584,
+  "partition": 0,
+  "offset": 1
+}
+{
+  "topic": "nyc_permitted_event",
+  "value": "{\"event_id\": \"890162\", \"event_name\": \"Soccer -Regulation\", \"start_date_time\": \"2025-12-24T18:00:00.000\", \"end_date_time\": \"2025-12-24T22:00:00.000\", \"event_agency\": \"Parks Department\", \"event_type\": \"Sport - Adult\", \"event_borough\": \"Manhattan\", \"event_location\": \"Randall's Island Park: Wards Meadow Fields-Soccer-74\", \"street_closure_type\": \"N/A\", \"community_board\": \"11,\", \"police_precinct\": \"25,\"}",
+  "timestamp": 1764457572584,
+  "partition": 0,
+  "offset": 2
+}
+{
+  "topic": "nyc_permitted_event",                                                                                                  "value": "{\"event_id\": \"896082\", \"event_name\": \"Football - Adults\", \"start_date_time\": \"2025-12-07T09:00:00.000\", \"end_date_time\": \"2025-12-07T17:00:00.000\", \"event_agency\": \"Parks Department\", \"event_type\": \"Sport - Adult\", \"event_borough\": \"Staten Island\", \"event_location\": \"Gen. Douglas MacArthur Park: Multi-Use Field-01\", \"street_closure_type\": \"N/A\", \"community_board\": \"2,\", \"police_precinct\": \"122,\"}",                                                             "timestamp": 1764457572584,                                                                                                      "partition": 0,                                                                                                                  "offset": 3                                                                                                                    }                                                                                                                                {                                                                                                                                  "topic": "nyc_permitted_event",                                                                                                  "value": "{\"event_id\": \"893677\", \"event_name\": \"Soccer - Non Regulation\", \"start_date_time\": \"2025-12-14T11:00:00.000\", \"end_date_time\": \"2025-12-14T12:00:00.000\", \"event_agency\": \"Parks Department\", \"event_type\": \"Sport - Adult\", \"event_borough\": \"Manhattan\", \"event_location\": \"Sara D. Roosevelt Park: Nike Field-Soccer-02\", \"street_closure_type\": \"N/A\", \"community_board\": \"03,\", \"police_precinct\": \"5,\"}",                                                               "timestamp": 1764457572584,                                                                                                      "partition": 0,                                                                                                                  "offset": 4                                                                                                                    }

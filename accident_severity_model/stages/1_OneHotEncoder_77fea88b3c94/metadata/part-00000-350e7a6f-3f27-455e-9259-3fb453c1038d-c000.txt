@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.OneHotEncoderModel","timestamp":1765065525599,"sparkVersion":"4.0.1","uid":"OneHotEncoder_77fea88b3c94","paramMap":{"inputCols":["Weather_Index"],"outputCols":["Weather_Vec"]},"defaultParamMap":{"dropLast":true,"handleInvalid":"error","outputCol":"OneHotEncoder_77fea88b3c94__output"}}
