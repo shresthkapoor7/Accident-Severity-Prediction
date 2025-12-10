@@ -10,6 +10,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, count, avg, min as spark_min, max as spark_max
 from pyspark.sql.types import TimestampType, StructType, StructField, DoubleType, StringType
 from pyspark.ml import PipelineModel
+from pyspark.ml.classification import GBTClassificationModel
 from datetime import datetime
 import os
 import json
@@ -17,6 +18,10 @@ import time
 import threading
 import random
 from collections import deque
+import subprocess
+import sys
+
+from kafka import KafkaConsumer
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -26,6 +31,10 @@ streaming_predictions = deque(maxlen=50)
 mock_streaming_active = False
 mock_streaming_thread = None
 
+# Background processes for Kafka-based streaming (spawned automatically)
+producer_process = None
+ml_streaming_process = None
+
 # Configuration - paths relative to backend directory
 # When running from backend folder, go up two levels to reach the project root
 import os
@@ -33,11 +42,21 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 CSV_FILENAME = os.path.join(PROJECT_ROOT, "US_Accidents_March23.csv")
 MODEL_PATH = os.path.join(PROJECT_ROOT, "accident_severity_model")
+FEATURE_MODEL_PATH = MODEL_PATH + "_features"
+OVR_MODEL_PATHS = {i: f"{MODEL_PATH}_severity_{i}" for i in range(4)}
+
+# Kafka / Redpanda (Kafka API) configuration
+KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+PREDICTION_TOPIC = "accident-predictions"
 
 # Global variables
 spark = None
 df_spark = None
+# Legacy single PipelineModel (RandomForest or similar)
 severity_model = None
+# One-vs-Rest GBT setup: feature pipeline + 4 binary models (severity 0–3)
+feature_model = None
+severity_models = {}
 min_date = None
 max_date = None
 
@@ -51,7 +70,7 @@ REQUIRED_COLUMNS = [
 
 def init_spark():
     """Initialize Spark Session"""
-    global spark, df_spark, min_date, max_date, severity_model
+    global spark, df_spark, min_date, max_date, severity_model, feature_model, severity_models
     
     print("Initializing Spark Session...")
     spark = SparkSession.builder \
@@ -84,16 +103,34 @@ def init_spark():
     max_date = str(result["max_date"])
     print(f"Date range: {min_date} to {max_date}")
     
-    # Load prediction model
-    if os.path.exists(MODEL_PATH):
+    # Load prediction models
+    # Prefer One-vs-Rest GBT models (severity 0–3) if available, otherwise fall back to legacy pipeline
+    ovr_available = os.path.exists(FEATURE_MODEL_PATH) and all(os.path.exists(path) for path in OVR_MODEL_PATHS.values())
+    
+    if ovr_available:
         try:
-            print(f"Loading prediction model from {MODEL_PATH}...")
-            severity_model = PipelineModel.load(MODEL_PATH)
-            print("✅ Prediction model loaded successfully!")
+            print(f"Loading feature pipeline from {FEATURE_MODEL_PATH}...")
+            feature_model = PipelineModel.load(FEATURE_MODEL_PATH)
+            
+            for severity, path in OVR_MODEL_PATHS.items():
+                print(f"Loading severity model {severity} from {path}...")
+                severity_models[severity] = GBTClassificationModel.load(path)
+            
+            print("One-vs-Rest severity models (0–3) loaded successfully!")
         except Exception as e:
-            print(f"⚠️ Error loading model: {e}")
-    else:
-        print(f"⚠️ Model not found at {MODEL_PATH}")
+            print(f"Error loading One-vs-Rest models, will try legacy model instead: {e}")
+    
+    # Fallback: legacy single PipelineModel (older RandomForest-based model)
+    if not severity_models:
+        if os.path.exists(MODEL_PATH):
+            try:
+                print(f"Loading legacy prediction model from {MODEL_PATH}...")
+                severity_model = PipelineModel.load(MODEL_PATH)
+                print("Legacy prediction model loaded successfully!")
+            except Exception as e:
+                print(f"Error loading legacy model: {e}")
+        else:
+            print(f"No prediction models found at {MODEL_PATH} or OVR paths")
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -101,7 +138,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'spark_initialized': spark is not None,
-        'model_loaded': severity_model is not None,
+        'model_loaded': (feature_model is not None and bool(severity_models)) or severity_model is not None,
         'date_range': {'min': min_date, 'max': max_date}
     })
 
@@ -433,11 +470,11 @@ def get_real_weather(lat, lng, city):
             weather_cache[cache_key] = weather_data
             cache_timestamp[cache_key] = now
             
-            print(f"🌤️ Live weather for {city}: {weather_data['temperature']:.1f}°F, {weather_data['weather_condition']}")
+            print(f"Live weather for {city}: {weather_data['temperature']:.1f}°F, {weather_data['weather_condition']}")
             return weather_data
             
     except Exception as e:
-        print(f"⚠️ Weather API error for {city}: {e}")
+        print(f"Weather API error for {city}: {e}")
     
     # Fallback to cached or default data
     if cache_key in weather_cache:
@@ -496,12 +533,47 @@ def generate_mock_ny_accident():
         "weather_source": "OpenWeatherMap Live"
     }
 
+def predict_severity_with_ovr(input_df):
+    """Run the One-vs-Rest GBT severity models on a single-row input_df.
+
+    Returns (severity_index_0_3, probabilities_list_length_4).
+    """
+    global feature_model, severity_models
+
+    if feature_model is None or not severity_models:
+        raise RuntimeError("One-vs-Rest severity models are not loaded")
+
+    # Prepare features using the feature pipeline (adds 'features' column)
+    features_df = feature_model.transform(input_df)
+
+    # Score with each binary GBT model (severity 0–3) and collect P(label=1) for each
+    probs = []
+    for severity_idx in sorted(severity_models.keys()):
+        model = severity_models[severity_idx]
+        pred_df = model.transform(features_df)
+        row = pred_df.select("probability").first()
+        prob_vec = row["probability"]
+        # probability vector is [P(class=0), P(class=1)]
+        probs.append(float(prob_vec[1]))
+
+    # Normalize to make them easier to interpret as class probabilities
+    total = sum(probs)
+    if total > 0:
+        probs_norm = [p / total for p in probs]
+    else:
+        probs_norm = [0.25] * len(probs)
+
+    # Choose severity index with highest probability (0–3)
+    best_idx = max(range(len(probs_norm)), key=lambda i: probs_norm[i])
+    return best_idx, probs_norm
+
+
 def make_prediction_for_streaming(data):
     """Make prediction for streaming data using the model"""
-    global severity_model, spark
+    global severity_model, feature_model, severity_models, spark
     
-    if severity_model is None:
-        # Return mock prediction if model not loaded
+    if (feature_model is None or not severity_models) and severity_model is None:
+        # Return mock prediction if no model is loaded
         return {
             "predicted_severity": random.choices([2, 2, 2, 3, 3, 4], weights=[30, 30, 20, 10, 5, 5])[0],
             "probabilities": [0.1, 0.5, 0.3, 0.1]
@@ -510,11 +582,12 @@ def make_prediction_for_streaming(data):
     try:
         hour_val = data['hour']
         day_of_week = data['day_of_week']
-        temperature = data['temperature']
-        humidity = data['humidity']
-        pressure = data['pressure']
-        visibility = data['visibility']
-        wind_speed = data['wind_speed']
+        # Cast numeric fields explicitly to float to satisfy Spark DoubleType schema
+        temperature = float(data['temperature'])
+        humidity = float(data['humidity'])
+        pressure = float(data['pressure'])
+        visibility = float(data['visibility'])
+        wind_speed = float(data['wind_speed'])
         weather_condition = data['weather_condition']
         sunrise_sunset = data['sunrise_sunset']
         crossing = 1.0 if data['crossing'] else 0.0
@@ -570,13 +643,29 @@ def make_prediction_for_streaming(data):
         ])
         
         input_df = spark.createDataFrame(input_data, schema)
-        predictions = severity_model.transform(input_df)
-        result = predictions.select("prediction", "probability").collect()[0]
-        
-        return {
-            "predicted_severity": int(result["prediction"]),
-            "probabilities": result["probability"].toArray().tolist()
-        }
+
+        # Prefer One-vs-Rest models if available, otherwise fall back to legacy model
+        if feature_model is not None and severity_models:
+            severity_idx, probs = predict_severity_with_ovr(input_df)
+            # Convert 0–3 index back to severity 1–4 for external consumers
+            predicted_severity = severity_idx + 1
+            return {
+                "predicted_severity": predicted_severity,
+                "probabilities": probs
+            }
+        elif severity_model is not None:
+            predictions = severity_model.transform(input_df)
+            result = predictions.select("prediction", "probability").collect()[0]
+            return {
+                "predicted_severity": int(result["prediction"]),
+                "probabilities": result["probability"].toArray().tolist()
+            }
+        else:
+            # Should not reach here because we check above, but just in case
+            return {
+                "predicted_severity": 2,
+                "probabilities": [0.25, 0.25, 0.25, 0.25]
+            }
     except Exception as e:
         print(f"Prediction error: {e}")
         return {
@@ -584,61 +673,126 @@ def make_prediction_for_streaming(data):
             "probabilities": [0.15, 0.55, 0.20, 0.10]
         }
 
+def create_prediction_consumer():
+    """Create a Kafka/Redpanda consumer that reads prediction events.
+
+    This consumer subscribes to the 'accident-predictions' topic produced by the
+    Spark streaming job (kafka_streaming.py), which turns raw accidents into
+    ML-scored severity predictions.
+    """
+    return KafkaConsumer(
+        PREDICTION_TOPIC,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+        auto_offset_reset="latest",
+        enable_auto_commit=True,
+        group_id="accident-dashboard-predictions",
+    )
+
+
 def mock_streaming_worker():
-    """Background worker that generates mock streaming predictions"""
+    """Background worker that streams predictions from Kafka/Redpanda.
+
+    Instead of generating accidents and scoring them in-memory, this worker
+    now consumes from the 'accident-predictions' topic so all persistence is
+    handled by Kafka/Redpanda.
+    """
     global mock_streaming_active, streaming_predictions
     
-    print("🚀 Mock streaming worker started for New York State")
+    print("Prediction streaming worker consuming from Kafka/Redpanda")
     count = 0
+
+    try:
+        consumer = create_prediction_consumer()
+    except Exception as e:
+        print(f"Error creating prediction consumer: {e}")
+        mock_streaming_active = False
+        return
     
-    while mock_streaming_active:
-        try:
-            # Generate mock accident data
-            accident_data = generate_mock_ny_accident()
-            
-            # Make prediction
-            prediction = make_prediction_for_streaming(accident_data)
-            
-            # Combine into result
-            result = {
-                **accident_data,
-                "predicted_severity": prediction["predicted_severity"],
-                "probabilities": prediction["probabilities"],
-                "processed_at": datetime.now().isoformat()
-            }
-            
-            # Add to queue
-            streaming_predictions.append(result)
+    try:
+        for msg in consumer:
+            if not mock_streaming_active:
+                break
+
+            try:
+                event = msg.value
+            except Exception as decode_err:
+                print(f"Error decoding prediction event: {decode_err}")
+                continue
+
+            # Optional server-side state filter (All US vs specific state)
+            state_filter = getattr(streaming_status, "current_state", None)
+            if state_filter and event.get("state") != state_filter:
+                continue
+
+            streaming_predictions.append(event)
             count += 1
-            
-            severity_emoji = ["🟢", "🟡", "🟠", "🔴"][prediction["predicted_severity"] - 1]
-            print(f"[{count}] {severity_emoji} {result['id']}: Severity {prediction['predicted_severity']} | "
-                  f"{result['neighborhood']} - {result['street']} | {result['weather_condition']} | {result['temperature']}°F")
-            
-            # Wait between predictions (slower stream: 5-8 seconds)
-            time.sleep(random.uniform(5, 8))
-            
-        except Exception as e:
-            print(f"Error in streaming worker: {e}")
-            time.sleep(1)
-    
-    print("🛑 Mock streaming worker stopped")
+
+            sev = int(event.get("predicted_severity", 2))
+            city = event.get("city") or event.get("neighborhood") or "Unknown"
+            street = event.get("street") or ""
+            weather = event.get("weather_condition", "Unknown")
+            temp = event.get("temperature", "?")
+
+            print(
+                f"[{count}] Severity {sev} | id={event.get('id', 'N/A')} | "
+                f"{city} - {street} | {weather} | {temp}°F"
+            )
+    except Exception as e:
+        print(f"Error in streaming worker: {e}")
+    finally:
+        try:
+            consumer.close()
+        except Exception:
+            pass
+        print("Prediction streaming worker stopped")
 
 @app.route('/api/streaming/start', methods=['POST'])
 def start_streaming():
-    """Start the mock streaming prediction service"""
-    global mock_streaming_active, mock_streaming_thread
-    
+    """Start the Kafka-based streaming prediction service.
+
+    This will automatically spawn the raw accident producer and the Spark ML
+    streaming job (kafka_streaming.py) as background processes if they are not
+    already running, and then start the local consumer worker that feeds the
+    React UI.
+    """
+    global mock_streaming_active, mock_streaming_thread, producer_process, ml_streaming_process
+
     if mock_streaming_active:
         return jsonify({'status': 'already_running', 'message': 'Streaming is already active'})
-    
+
+    # Auto-start Kafka producer (raw accidents) if not running
+    try:
+        if producer_process is None or producer_process.poll() is not None:
+            print("Starting internal Kafka producer (kafka_producer.py)...")
+            # Do not suppress stdout/stderr so we can see any connection/model errors
+            producer_process = subprocess.Popen(
+                [sys.executable, "kafka_producer.py", "--interval", "4"],
+                cwd=SCRIPT_DIR,
+            )
+    except Exception as e:
+        print(f"Warning: could not start kafka_producer.py automatically: {e}")
+
+    # Auto-start ML streaming job if not running
+    try:
+        if ml_streaming_process is None or ml_streaming_process.poll() is not None:
+            print("Starting internal ML streaming job (kafka_streaming.py)...")
+            # Do not suppress stdout/stderr so we can see Spark/model/Kafka errors
+            ml_streaming_process = subprocess.Popen(
+                [sys.executable, "kafka_streaming.py"],
+                cwd=SCRIPT_DIR,
+            )
+    except Exception as e:
+        print(f"Warning: could not start kafka_streaming.py automatically: {e}")
+
+    # Start local consumer that reads from accident-predictions and feeds the UI
     mock_streaming_active = True
     mock_streaming_thread = threading.Thread(target=mock_streaming_worker, daemon=True)
     mock_streaming_thread.start()
-    
+
     return jsonify({
         'status': 'started',
-        'message': 'Real-time streaming predictions started for New York State'
+        'message': 'Real-time streaming predictions started (Kafka + Spark ML)'
     })
 
 @app.route('/api/streaming/stop', methods=['POST'])
@@ -721,7 +875,7 @@ def get_latest_predictions():
 @app.route('/api/predict', methods=['POST'])
 def predict_severity():
     """Predict accident severity based on input features"""
-    if severity_model is None:
+    if (feature_model is None or not severity_models) and severity_model is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
     try:
@@ -797,11 +951,17 @@ def predict_severity():
         ])
         
         input_df = spark.createDataFrame(input_data, schema)
-        predictions = severity_model.transform(input_df)
-        
-        result = predictions.select("prediction", "probability").collect()[0]
-        predicted_severity = int(result["prediction"])
-        probabilities = result["probability"].toArray().tolist()
+
+        # Prefer One-vs-Rest models if available, otherwise fall back to legacy model
+        if feature_model is not None and severity_models:
+            severity_idx, probabilities = predict_severity_with_ovr(input_df)
+            # Convert 0–3 index back to severity 1–4 for external consumers
+            predicted_severity = severity_idx + 1
+        else:
+            predictions = severity_model.transform(input_df)
+            result = predictions.select("prediction", "probability").collect()[0]
+            predicted_severity = int(result["prediction"])
+            probabilities = result["probability"].toArray().tolist()
         
         return jsonify({
             'predicted_severity': predicted_severity,
