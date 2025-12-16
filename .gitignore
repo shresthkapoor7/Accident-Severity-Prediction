@@ -207,3 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 archive.zip
+US_Accidents_March23.csv
+visualizations/*
+react-accident-dashboard/frontend/node_modules/*
