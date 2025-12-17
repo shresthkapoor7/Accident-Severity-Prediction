@@ -46,24 +46,24 @@ Road traffic accidents in the United States occur at a massive scale, with over 
 ### High-Level Design
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    User Interface Layer                      │
-│              (React Dashboard - Single Page App)             │
-└────────────────────────┬────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                    User Interface Layer                    │
+│              (React Dashboard - Single Page App)           │
+└────────────────────────┬───────────────────────────────────┘
                          │
-            ┌────────────┴────────────┐
-            │                         │
+            ┌────────────┴───────────┐
+            │                        │
 ┌───────────▼──────────┐  ┌──────────▼───────────────────────┐
 │  Backend Analytics   │  │   Streaming Infrastructure       │
 │   & Inference API    │  │  (Kafka + Spark Streaming)       │
-│   (Flask REST API)   │  │                                   │
+│   (Flask REST API)   │  │                                  │
 └───────────┬──────────┘  └──────────┬───────────────────────┘
-            │                         │
-            │                         │
-┌───────────▼─────────────────────────▼───────────────────────┐
-│              Model Training Layer                            │
-│         (Apache Spark MLlib - GBT Classifier)                │
-└─────────────────────────┬────────────────────────────────────┘
+            │                        │
+            │                        │
+┌───────────▼────────────────────────▼───────────────────────┐
+│              Model Training Layer                          │
+│         (Apache Spark MLlib - GBT Classifier)              │
+└─────────────────────────┬──────────────────────────────────┘
                           │
                 ┌─────────▼─────────┐
                 │   Raw Dataset     │
