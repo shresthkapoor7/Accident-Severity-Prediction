@@ -13,6 +13,7 @@ import requests
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'  # Redpanda default port
 
 # OpenWeatherMap API
+# The Key is expired 😏
 OPENWEATHER_API_KEY = "c5757baa8f23c85bedf0902235044704"
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -49,14 +50,14 @@ def get_real_weather(lat, lng):
     """Fetch real weather data from OpenWeatherMap API"""
     cache_key = f"{lat:.1f},{lng:.1f}"
     now = time.time()
-    
+
     if cache_key in weather_cache and (now - cache_timestamp.get(cache_key, 0)) < CACHE_DURATION:
         return weather_cache[cache_key]
-    
+
     try:
         params = {"lat": lat, "lon": lng, "appid": OPENWEATHER_API_KEY, "units": "imperial"}
         response = requests.get(OPENWEATHER_URL, params=params, timeout=5)
-        
+
         if response.status_code == 200:
             data = response.json()
             weather_data = {
@@ -77,7 +78,7 @@ def get_real_weather(lat, lng):
             return weather_data
     except:
         pass
-    
+
     return {"temperature": 55.0, "humidity": 50.0, "pressure": 29.92,
             "visibility": 10.0, "wind_speed": 5.0, "weather_condition": "Clear"}
 
@@ -90,21 +91,21 @@ def generate_nyc_accident():
     """Generate mock accident data for NYC using REAL weather data"""
     location = random.choice(NYC_LOCATIONS)
     lat, lng, neighborhood, street = location
-    
+
     # Add small randomness to exact location
     lat += random.uniform(-0.005, 0.005)
     lng += random.uniform(-0.005, 0.005)
-    
+
     now = datetime.now()
     hour = now.hour
     day_of_week = 1 if now.isoweekday() == 7 else now.isoweekday() + 1
-    
+
     # Get REAL weather data from API
     weather = get_real_weather(lat, lng)
-    
+
     # Determine day/night
     sunrise_sunset = "Day" if 6 <= hour <= 18 else "Night"
-    
+
     return {
         "id": f"ACC-NYC-{now.strftime('%H%M%S')}-{random.randint(100, 999)}",
         "timestamp": now.isoformat(),
@@ -156,37 +157,37 @@ def run_producer(interval=8):
     if not producer:
         print("Cannot start - ensure Kafka/Redpanda is running")
         return
-    
+
     print("=" * 60)
     print("NYC Accident Data Producer - Kafka/Redpanda")
     print("=" * 60)
     print(f"\nTopic: accident-all (and accident-ny)")
     print(f"Interval: {interval} seconds")
     print("=" * 60 + "\n")
-    
+
     count = 0
-    
+
     try:
         while True:
             accident = generate_nyc_accident()
-            
+
             # Send to main topic (accident-all)
             producer.send('accident-all', key=accident["id"], value=accident)
-            
+
             # Also send to NY-specific topic
             producer.send('accident-ny', key=accident["id"], value=accident)
-            
+
             # If adverse weather, send to weather topic
             if accident['is_adverse_weather']:
                 producer.send('accident-weather-adverse', key=accident["id"], value=accident)
-            
+
             count += 1
             print(f"[{count}] {accident['id']} | {accident['neighborhood']} - {accident['street']} | "
                   f"{accident['temperature']}°F | {accident['weather_condition']}")
-            
+
             producer.flush()
             time.sleep(interval)
-            
+
     except KeyboardInterrupt:
         print(f"\n" + "=" * 60)
         print(f"Producer stopped. Total messages sent: {count}")
@@ -202,9 +203,9 @@ if __name__ == "__main__":
     parser.add_argument('--interval', type=float, default=8, help='Seconds between messages')
     parser.add_argument('--bootstrap-servers', type=str, default='localhost:9092', help='Kafka bootstrap servers')
     args = parser.parse_args()
-    
+
     if args.bootstrap_servers != 'localhost:9092':
         KAFKA_BOOTSTRAP_SERVERS = args.bootstrap_servers
-    
+
     run_producer(args.interval)
 

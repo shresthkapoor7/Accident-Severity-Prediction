@@ -13,6 +13,7 @@ import requests
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
 
 # OpenWeatherMap API
+# The Key is expired 😏
 OPENWEATHER_API_KEY = "c5757baa8f23c85bedf0902235044704"
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -88,7 +89,7 @@ STATE_NAMES = {
 
 # Weather weights by state (some states have worse weather)
 STATE_WEIGHTS = {
-    'CA': 15, 'TX': 12, 'FL': 10, 'NY': 8, 'PA': 5, 'IL': 5, 'OH': 5, 
+    'CA': 15, 'TX': 12, 'FL': 10, 'NY': 8, 'PA': 5, 'IL': 5, 'OH': 5,
     'GA': 4, 'NC': 4, 'MI': 4, 'NJ': 4, 'VA': 4, 'WA': 3, 'AZ': 3,
     'MA': 3, 'TN': 3, 'IN': 3, 'MO': 3, 'MD': 3, 'WI': 2, 'CO': 2,
     'MN': 2, 'SC': 2, 'AL': 2, 'LA': 2, 'KY': 2, 'OR': 2, 'OK': 2,
@@ -113,14 +114,14 @@ def get_real_weather(lat, lng):
     """Fetch real weather data from OpenWeatherMap API"""
     cache_key = f"{lat:.1f},{lng:.1f}"
     now = time.time()
-    
+
     if cache_key in weather_cache and (now - cache_timestamp.get(cache_key, 0)) < CACHE_DURATION:
         return weather_cache[cache_key]
-    
+
     try:
         params = {"lat": lat, "lon": lng, "appid": OPENWEATHER_API_KEY, "units": "imperial"}
         response = requests.get(OPENWEATHER_URL, params=params, timeout=5)
-        
+
         if response.status_code == 200:
             data = response.json()
             weather_data = {
@@ -141,7 +142,7 @@ def get_real_weather(lat, lng):
             return weather_data
     except:
         pass
-    
+
     return {"temperature": 55.0, "humidity": 50.0, "pressure": 29.92,
             "visibility": 10.0, "wind_speed": 5.0, "weather_condition": "Clear"}
 
@@ -156,18 +157,18 @@ def generate_accident_data():
     states = list(STATE_WEIGHTS.keys())
     weights = list(STATE_WEIGHTS.values())
     state_code = random.choices(states, weights=weights)[0]
-    
+
     # Select city in state
     city_data = random.choice(US_LOCATIONS[state_code])
     city, lat, lng = city_data
-    
+
     # Add small random offset
     lat += random.uniform(-0.05, 0.05)
     lng += random.uniform(-0.05, 0.05)
-    
+
     now = datetime.now()
     weather = get_real_weather(lat, lng)
-    
+
     return {
         "id": f"ACC-{state_code}-{now.strftime('%H%M%S')}-{random.randint(100, 999)}",
         "timestamp": now.isoformat(),
@@ -213,7 +214,7 @@ def run_producer(interval=4):
     if not producer:
         print("Cannot start - ensure Kafka is running")
         return
-    
+
     print("=" * 60)
     print("US-Wide Kafka Producer - State-Based Topics")
     print("=" * 60)
@@ -223,34 +224,34 @@ def run_producer(interval=4):
     print("  All:       accident-all")
     print("  Alerts:    accident-alerts-high")
     print("=" * 60 + "\n")
-    
+
     counts = {}
-    
+
     try:
         while True:
             accident = generate_accident_data()
             state_code = accident['state']
-            
+
             # 1. Send to state-specific topic
             state_topic = get_state_topic(state_code)
             producer.send(state_topic, key=accident["id"], value=accident)
             counts[state_topic] = counts.get(state_topic, 0) + 1
-            
+
             # 2. Send to ALL topic
             producer.send('accident-all', key=accident["id"], value=accident)
             counts['accident-all'] = counts.get('accident-all', 0) + 1
-            
+
             # 3. If adverse weather, send to weather topic
             if accident['is_adverse_weather']:
                 producer.send('accident-weather-adverse', key=accident["id"], value=accident)
                 counts['accident-weather-adverse'] = counts.get('accident-weather-adverse', 0) + 1
-            
+
             print(f"[{state_topic}] {accident['id']} | {accident['city']}, {state_code} | "
                   f"{accident['temperature']}°F | {accident['weather_condition']}")
-            
+
             producer.flush()
             time.sleep(interval)
-            
+
     except KeyboardInterrupt:
         print(f"\n" + "=" * 60)
         print("Producer stopped. Counts by state:")

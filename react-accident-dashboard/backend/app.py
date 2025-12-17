@@ -71,7 +71,7 @@ REQUIRED_COLUMNS = [
 def init_spark():
     """Initialize Spark Session"""
     global spark, df_spark, min_date, max_date, severity_model, feature_model, severity_models
-    
+
     print("Initializing Spark Session...")
     spark = SparkSession.builder \
         .appName("US Accidents API") \
@@ -79,10 +79,10 @@ def init_spark():
         .config("spark.sql.execution.arrow.pyspark.enabled", "true") \
         .config("spark.sql.shuffle.partitions", "8") \
         .getOrCreate()
-    
+
     spark.sparkContext.setLogLevel("WARN")
     print("Spark initialized successfully!")
-    
+
     # Load data
     print("Loading data reference...")
     df_spark = spark.read \
@@ -90,36 +90,36 @@ def init_spark():
         .option("inferSchema", "true") \
         .csv(CSV_FILENAME) \
         .select(REQUIRED_COLUMNS)
-    
+
     df_spark = df_spark.withColumn("Start_Time", col("Start_Time").cast(TimestampType()))
-    
+
     # Get date range
     result = df_spark.select(
         spark_min(col("Start_Time").cast("date")).alias("min_date"),
         spark_max(col("Start_Time").cast("date")).alias("max_date")
     ).collect()[0]
-    
+
     min_date = str(result["min_date"])
     max_date = str(result["max_date"])
     print(f"Date range: {min_date} to {max_date}")
-    
+
     # Load prediction models
     # Prefer One-vs-Rest GBT models (severity 0–3) if available, otherwise fall back to legacy pipeline
     ovr_available = os.path.exists(FEATURE_MODEL_PATH) and all(os.path.exists(path) for path in OVR_MODEL_PATHS.values())
-    
+
     if ovr_available:
         try:
             print(f"Loading feature pipeline from {FEATURE_MODEL_PATH}...")
             feature_model = PipelineModel.load(FEATURE_MODEL_PATH)
-            
+
             for severity, path in OVR_MODEL_PATHS.items():
                 print(f"Loading severity model {severity} from {path}...")
                 severity_models[severity] = GBTClassificationModel.load(path)
-            
+
             print("One-vs-Rest severity models (0–3) loaded successfully!")
         except Exception as e:
             print(f"Error loading One-vs-Rest models, will try legacy model instead: {e}")
-    
+
     # Fallback: legacy single PipelineModel (older RandomForest-based model)
     if not severity_models:
         if os.path.exists(MODEL_PATH):
@@ -155,27 +155,27 @@ def get_summary():
     """Get summary statistics for date range"""
     start_date = request.args.get('start_date', min_date)
     end_date = request.args.get('end_date', max_date)
-    
+
     try:
         df_filtered = df_spark.filter(
             (col("Start_Time") >= start_date) &
             (col("Start_Time") <= f"{end_date} 23:59:59")
         )
-        
+
         total_count = df_filtered.count()
-        
+
         if total_count == 0:
             return jsonify({'error': 'No data found for the selected date range'}), 404
-        
+
         # Get state count
         state_count = df_filtered.select("State").distinct().count()
         city_count = df_filtered.select("City").distinct().count()
         county_count = df_filtered.select("County").distinct().count()
-        
+
         # Severity distribution
         severity_dist = df_filtered.groupBy("Severity").count().orderBy("Severity").collect()
         severity_data = {int(row['Severity']): row['count'] for row in severity_dist}
-        
+
         return jsonify({
             'total_accidents': total_count,
             'states': state_count,
@@ -184,7 +184,7 @@ def get_summary():
             'date_range': {'start': start_date, 'end': end_date},
             'severity_distribution': severity_data
         })
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -193,13 +193,13 @@ def get_state_stats():
     """Get statistics by state for the US map"""
     start_date = request.args.get('start_date', min_date)
     end_date = request.args.get('end_date', max_date)
-    
+
     try:
         df_filtered = df_spark.filter(
             (col("Start_Time") >= start_date) &
             (col("Start_Time") <= f"{end_date} 23:59:59")
         )
-        
+
         # Aggregate by state
         state_stats = df_filtered.groupBy("State").agg(
             count("*").alias("total_accidents"),
@@ -207,7 +207,7 @@ def get_state_stats():
             avg("Temperature(F)").alias("avg_temperature"),
             avg("Visibility(mi)").alias("avg_visibility")
         ).collect()
-        
+
         # Get severity breakdown per state
         severity_by_state = df_filtered.groupBy("State", "Severity").count().collect()
         severity_map = {}
@@ -216,11 +216,11 @@ def get_state_stats():
             if state not in severity_map:
                 severity_map[state] = {}
             severity_map[state][int(row['Severity'])] = row['count']
-        
+
         # Get top city per state
         city_counts = df_filtered.groupBy("State", "City").count()
         # This is simplified - in production you'd want a proper window function
-        
+
         result = []
         for row in state_stats:
             state = row['State']
@@ -232,9 +232,9 @@ def get_state_stats():
                 'avg_visibility': round(row['avg_visibility'], 1) if row['avg_visibility'] else 0,
                 'severity_breakdown': severity_map.get(state, {})
             })
-        
+
         return jsonify(result)
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -243,36 +243,36 @@ def get_time_analysis():
     """Get time-based analysis"""
     start_date = request.args.get('start_date', min_date)
     end_date = request.args.get('end_date', max_date)
-    
+
     try:
         from pyspark.sql.functions import hour, dayofweek, month
-        
+
         df_filtered = df_spark.filter(
             (col("Start_Time") >= start_date) &
             (col("Start_Time") <= f"{end_date} 23:59:59")
         )
-        
+
         # Hour analysis
         hour_stats = df_filtered.withColumn("hour", hour("Start_Time")) \
             .groupBy("hour").count().orderBy("hour").collect()
         hour_data = {row['hour']: row['count'] for row in hour_stats}
-        
+
         # Day of week analysis
         dow_stats = df_filtered.withColumn("dow", dayofweek("Start_Time")) \
             .groupBy("dow").count().orderBy("dow").collect()
         dow_data = {row['dow']: row['count'] for row in dow_stats}
-        
+
         # Month analysis
         month_stats = df_filtered.withColumn("month", month("Start_Time")) \
             .groupBy("month").count().orderBy("month").collect()
         month_data = {row['month']: row['count'] for row in month_stats}
-        
+
         return jsonify({
             'by_hour': hour_data,
             'by_day_of_week': dow_data,
             'by_month': month_data
         })
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -281,18 +281,18 @@ def get_weather_analysis():
     """Get weather-based analysis"""
     start_date = request.args.get('start_date', min_date)
     end_date = request.args.get('end_date', max_date)
-    
+
     try:
         df_filtered = df_spark.filter(
             (col("Start_Time") >= start_date) &
             (col("Start_Time") <= f"{end_date} 23:59:59")
         )
-        
+
         # Weather condition counts (top 15 by volume)
         weather_stats = df_filtered.groupBy("Weather_Condition").count() \
             .orderBy(col("count").desc()).limit(15).collect()
         weather_data = {row['Weather_Condition']: row['count'] for row in weather_stats if row['Weather_Condition']}
-        
+
         # Severity distribution by weather condition
         severity_stats = df_filtered.groupBy("Weather_Condition", "Severity").count().collect()
         severity_by_weather = {}
@@ -303,14 +303,14 @@ def get_weather_analysis():
             if condition not in severity_by_weather:
                 severity_by_weather[condition] = {}
             severity_by_weather[condition][int(row['Severity'])] = row['count']
-        
+
         # Temperature statistics
         temp_stats = df_filtered.select(
             avg("Temperature(F)").alias("avg"),
             spark_min("Temperature(F)").alias("min"),
             spark_max("Temperature(F)").alias("max")
         ).collect()[0]
-        
+
         return jsonify({
             'weather_conditions': weather_data,
             'severity_by_weather': severity_by_weather,
@@ -320,7 +320,7 @@ def get_weather_analysis():
                 'max': round(temp_stats['max'], 1) if temp_stats['max'] else 0
             }
         })
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -366,6 +366,7 @@ def get_road_analysis():
 
 import requests
 
+# The Key is expired 😏
 OPENWEATHER_API_KEY = "c5757baa8f23c85bedf0902235044704"
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -401,11 +402,11 @@ def get_real_weather(lat, lng, city):
     """Fetch real weather data from OpenWeatherMap API"""
     cache_key = f"{lat:.2f},{lng:.2f}"
     now = time.time()
-    
+
     # Check cache
     if cache_key in weather_cache and (now - cache_timestamp.get(cache_key, 0)) < CACHE_DURATION:
         return weather_cache[cache_key]
-    
+
     try:
         params = {
             "lat": lat,
@@ -414,10 +415,10 @@ def get_real_weather(lat, lng, city):
             "units": "imperial"  # Fahrenheit
         }
         response = requests.get(OPENWEATHER_URL, params=params, timeout=5)
-        
+
         if response.status_code == 200:
             data = response.json()
-            
+
             # Extract weather data
             weather_data = {
                 "temperature": data["main"]["temp"],
@@ -429,7 +430,7 @@ def get_real_weather(lat, lng, city):
                 "weather_description": data["weather"][0]["description"],
                 "clouds": data.get("clouds", {}).get("all", 0),
             }
-            
+
             # Map OpenWeather conditions to our model's expected values
             condition_map = {
                 "Clear": "Clear",
@@ -445,10 +446,10 @@ def get_real_weather(lat, lng, city):
                 "Dust": "Dust",
             }
             weather_data["weather_condition"] = condition_map.get(
-                weather_data["weather_condition"], 
+                weather_data["weather_condition"],
                 weather_data["weather_condition"]
             )
-            
+
             # Refine based on description
             desc = weather_data["weather_description"].lower()
             if "heavy" in desc:
@@ -465,21 +466,21 @@ def get_real_weather(lat, lng, city):
                 weather_data["weather_condition"] = "Overcast"
             elif "partly" in desc or "scattered" in desc:
                 weather_data["weather_condition"] = "Partly Cloudy"
-            
+
             # Cache the result
             weather_cache[cache_key] = weather_data
             cache_timestamp[cache_key] = now
-            
+
             print(f"Live weather for {city}: {weather_data['temperature']:.1f}°F, {weather_data['weather_condition']}")
             return weather_data
-            
+
     except Exception as e:
         print(f"Weather API error for {city}: {e}")
-    
+
     # Fallback to cached or default data
     if cache_key in weather_cache:
         return weather_cache[cache_key]
-    
+
     # Default fallback
     return {
         "temperature": 50.0,
@@ -494,21 +495,21 @@ def generate_mock_ny_accident():
     """Generate mock accident data for NYC using REAL weather data"""
     location = random.choice(NYC_LOCATIONS)
     lat, lng, neighborhood, street = location
-    
+
     # Add small randomness to exact location (within ~0.005 degrees = ~500m)
     lat += random.uniform(-0.005, 0.005)
     lng += random.uniform(-0.005, 0.005)
-    
+
     now = datetime.now()
     hour = now.hour
     day_of_week = 1 if now.isoweekday() == 7 else now.isoweekday() + 1
-    
+
     # Get REAL weather data from API
     weather = get_real_weather(lat, lng, neighborhood)
-    
+
     # Determine day/night based on sunrise/sunset (simplified)
     sunrise_sunset = "Day" if 6 <= hour <= 18 else "Night"
-    
+
     return {
         "id": f"ACC-NYC-{now.strftime('%H%M%S')}-{random.randint(100, 999)}",
         "timestamp": now.isoformat(),
@@ -571,14 +572,14 @@ def predict_severity_with_ovr(input_df):
 def make_prediction_for_streaming(data):
     """Make prediction for streaming data using the model"""
     global severity_model, feature_model, severity_models, spark
-    
+
     if (feature_model is None or not severity_models) and severity_model is None:
         # Return mock prediction if no model is loaded
         return {
             "predicted_severity": random.choices([2, 2, 2, 3, 3, 4], weights=[30, 30, 20, 10, 5, 5])[0],
             "probabilities": [0.1, 0.5, 0.3, 0.1]
         }
-    
+
     try:
         hour_val = data['hour']
         day_of_week = data['day_of_week']
@@ -593,12 +594,12 @@ def make_prediction_for_streaming(data):
         crossing = 1.0 if data['crossing'] else 0.0
         junction = 1.0 if data['junction'] else 0.0
         traffic_signal = 1.0 if data['traffic_signal'] else 0.0
-        
+
         is_rush_hour = 1.0 if (7 <= hour_val <= 9) or (16 <= hour_val <= 19) else 0.0
         is_weekend = 1.0 if day_of_week in [1, 7] else 0.0
         time_of_day = 0.0 if sunrise_sunset == "Day" else 1.0
         month_val = float(datetime.now().month)
-        
+
         if month_val in [12, 1, 2]:
             season = 0.0
         elif month_val in [3, 4, 5]:
@@ -607,7 +608,7 @@ def make_prediction_for_streaming(data):
             season = 2.0
         else:
             season = 3.0
-        
+
         input_data = [(
             data['latitude'], data['longitude'], float(hour_val), float(day_of_week),
             is_rush_hour, is_weekend, time_of_day, month_val, season,
@@ -616,7 +617,7 @@ def make_prediction_for_streaming(data):
             temperature * humidity, wind_speed * visibility,
             weather_condition, sunrise_sunset, 1.0
         )]
-        
+
         schema = StructType([
             StructField("Start_Lat", DoubleType(), True),
             StructField("Start_Lng", DoubleType(), True),
@@ -641,7 +642,7 @@ def make_prediction_for_streaming(data):
             StructField("Sunrise_Sunset", StringType(), True),
             StructField("classWeight", DoubleType(), True)
         ])
-        
+
         input_df = spark.createDataFrame(input_data, schema)
 
         # Prefer One-vs-Rest models if available, otherwise fall back to legacy model
@@ -698,7 +699,7 @@ def mock_streaming_worker():
     handled by Kafka/Redpanda.
     """
     global mock_streaming_active, streaming_predictions
-    
+
     print("Prediction streaming worker consuming from Kafka/Redpanda")
     count = 0
 
@@ -708,7 +709,7 @@ def mock_streaming_worker():
         print(f"Error creating prediction consumer: {e}")
         mock_streaming_active = False
         return
-    
+
     try:
         for msg in consumer:
             if not mock_streaming_active:
@@ -799,10 +800,10 @@ def start_streaming():
 def stop_streaming():
     """Stop the mock streaming prediction service"""
     global mock_streaming_active
-    
+
     mock_streaming_active = False
     streaming_predictions.clear()
-    
+
     return jsonify({
         'status': 'stopped',
         'message': 'Streaming stopped'
@@ -823,11 +824,11 @@ def switch_streaming_state():
     global mock_streaming_active, streaming_predictions
     data = request.json or {}
     state_code = data.get('state')  # None = all states
-    
+
     # Store current state filter
     streaming_status.current_state = state_code
     streaming_predictions.clear()
-    
+
     state_name = state_code if state_code else "All US"
     return jsonify({
         'status': 'switched',
@@ -847,11 +848,11 @@ def stream_events():
                 for pred in new_predictions:
                     yield f"data: {json.dumps(pred)}\n\n"
                 last_count = len(streaming_predictions)
-            
+
             # Send heartbeat every 5 seconds
             yield f": heartbeat\n\n"
             time.sleep(1)
-    
+
     return Response(
         generate(),
         mimetype='text/event-stream',
@@ -877,10 +878,10 @@ def predict_severity():
     """Predict accident severity based on input features"""
     if (feature_model is None or not severity_models) and severity_model is None:
         return jsonify({'error': 'Model not loaded'}), 500
-    
+
     try:
         data = request.json
-        
+
         # Extract and calculate features
         latitude = float(data.get('latitude', 34.0522))
         longitude = float(data.get('longitude', -118.2437))
@@ -896,13 +897,13 @@ def predict_severity():
         crossing = float(data.get('crossing', 0))
         junction = float(data.get('junction', 0))
         traffic_signal = float(data.get('traffic_signal', 1))
-        
+
         # Calculate derived features
         is_rush_hour = 1.0 if (7 <= hour_val <= 9) or (16 <= hour_val <= 19) else 0.0
         is_weekend = 1.0 if day_of_week in [1, 7] else 0.0
         time_of_day = 0.0 if sunrise_sunset == "Day" else 1.0
         month_val = float(datetime.now().month)
-        
+
         if month_val in [12, 1, 2]:
             season = 0.0
         elif month_val in [3, 4, 5]:
@@ -911,10 +912,10 @@ def predict_severity():
             season = 2.0
         else:
             season = 3.0
-        
+
         temp_humidity_interaction = temperature * humidity
         wind_visibility_interaction = wind_speed * visibility
-        
+
         # Create input DataFrame
         input_data = [(
             latitude, longitude, float(hour_val), float(day_of_week),
@@ -924,7 +925,7 @@ def predict_severity():
             temp_humidity_interaction, wind_visibility_interaction,
             weather_condition, sunrise_sunset, 1.0
         )]
-        
+
         schema = StructType([
             StructField("Start_Lat", DoubleType(), True),
             StructField("Start_Lng", DoubleType(), True),
@@ -949,7 +950,7 @@ def predict_severity():
             StructField("Sunrise_Sunset", StringType(), True),
             StructField("classWeight", DoubleType(), True)
         ])
-        
+
         input_df = spark.createDataFrame(input_data, schema)
 
         # Prefer One-vs-Rest models if available, otherwise fall back to legacy model
@@ -962,7 +963,7 @@ def predict_severity():
             result = predictions.select("prediction", "probability").collect()[0]
             predicted_severity = int(result["prediction"])
             probabilities = result["probability"].toArray().tolist()
-        
+
         return jsonify({
             'predicted_severity': predicted_severity,
             'probabilities': probabilities,
@@ -974,7 +975,7 @@ def predict_severity():
                 'time_of_day': sunrise_sunset
             }
         })
-    
+
     except Exception as e:
         import traceback
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
